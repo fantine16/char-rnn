@@ -33,6 +33,7 @@ cmd:option('-temperature',1,'temperature of sampling')
 cmd:option('-gpuid',0,'which gpu to use. -1 = use CPU')
 cmd:option('-opencl',0,'use OpenCL (instead of CUDA)')
 cmd:option('-verbose',1,'set to 0 to ONLY print the sampled text, no diagnostics')
+--cmd:option('')
 cmd:text()
 
 -- parse input params

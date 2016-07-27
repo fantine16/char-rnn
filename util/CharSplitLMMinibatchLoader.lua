@@ -129,7 +129,7 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     local timer = torch.Timer()
 
     print('loading text file...')
-    local cache_len = 10000
+    local cache_len = "*all"
     local rawdata
     local tot_len = 0
     local f = assert(io.open(in_textfile, "r"))
@@ -141,21 +141,28 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     --Rawdata是string类型,长度是cache_len
     rawdata = f:read(cache_len)
     --print(rawdata:gmatch'.')
-    print(torch.type(rawdata))
-    print((rawdata))
+    --print((rawdata))
+    --a,b=str2table(rawdata)
+    --print(a)
+    --print(b)
     --assert(false)
     --得到Input.txt中的所有的字符（包括数字，字母和标点，空字符等）的集合,存到unordered里
-    repeat
-        for char in rawdata:gmatch'.' do
+    --repeat
+        a,b=str2table(rawdata)
+        print(#a)
+        --assert(false)
+        for _,char in ipairs(a) do
             --print(char)
             if not unordered[char] then unordered[char] = true end
         end
-        tot_len = tot_len + #rawdata
+        tot_len = #a
         --print(tot_len)
         --assert(false)        
-        rawdata = f:read(cache_len)
+        --rawdata = f:read(cache_len)
         --print('gogo')
-    until not rawdata
+    --until not rawdata
+    --assert(false)
+    print(#unordered)
     --print(unordered)
     --assert(false)
     f:close()
@@ -164,15 +171,16 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     for char in pairs(unordered) do ordered[#ordered + 1] = char end
     --按照ascii表有序的字符集合
     table.sort(ordered)
-    print(ordered)
-    assert(false)
+    print(#ordered)
+    --print(ordered)
+    --assert(false)
     -- invert `ordered` to create the char->int mapping
     --建立字符到数字编码的对应关系
     local vocab_mapping = {}
     for i, char in ipairs(ordered) do
         vocab_mapping[char] = i
     end
-    --print(vocab_mapping)
+    print(vocab_mapping)
     --assert(false)
     -- construct a tensor with all the data
     print('putting data into tensor...')
@@ -184,13 +192,41 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     f = assert(io.open(in_textfile, "r"))
     local currlen = 0
     rawdata = f:read(cache_len)
-    repeat
-        for i=1, #rawdata do
-            data[currlen+i] = vocab_mapping[rawdata:sub(i, i)] -- lua has no string indexing using []
+    --repeat
+    a,b=str2table(rawdata)
+    --print(a)
+    --print(b)
+    --assert(false)
+    for i=1, #a do
+        if vocab_mapping[a[i]]==57 then
+            print(a[i-15])
+            print(a[i-14])
+            print(a[i-13])
+            print(a[i-12])
+            print(a[i-10])
+            print(a[i-9])
+            print(a[i-8])
+            print(a[i-7])
+            print(a[i-6])
+            print(a[i-5])
+            print(a[i-4])
+            print(a[i-3])
+            print(a[i-2])
+            print(a[i-1])
+            print(a[i])
+            print(a[i+1])
+            print(a[i+2])
+            print(a[i+3])
+            print(a[i+4])
+            print(i)
+            assert(false)
         end
-        currlen = currlen + #rawdata
-        rawdata = f:read(cache_len)
-    until not rawdata
+        data[currlen+i] = vocab_mapping[a[i]] -- lua has no string indexing using []
+    end
+    assert(false)
+    currlen = currlen + #a
+        --rawdata = f:read(cache_len)
+    --until not rawdata
     f:close()
 
     -- save output preprocessed files
