@@ -33,7 +33,7 @@ function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, spl
         end
     end
     --!!!!!!
-    run_prepro=true
+    --run_prepro=true
     if run_prepro then
         -- construct a tensor with all the data, and vocab file
         print('one-time setup: preprocessing input text file ' .. input_file .. '...')
@@ -43,7 +43,9 @@ function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, spl
     print('loading data files...')
     local data = torch.load(tensor_file)
     self.vocab_mapping = torch.load(vocab_file)
-
+    --print(data)
+    --print(self.vocab_mapping)
+    --assert(false)
     -- cut off the end so that it divides evenly
     local len = data:size(1)
     if len % (batch_size * seq_length) ~= 0 then
@@ -180,50 +182,33 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     for i, char in ipairs(ordered) do
         vocab_mapping[char] = i
     end
-    print(vocab_mapping)
+    --print(vocab_mapping)
     --assert(false)
     -- construct a tensor with all the data
     print('putting data into tensor...')
     --共1115394个字符
-    print(tot_len)
+    --print(tot_len)
     --assert(false)
-    --把原始的文本中的字符（包括数字和特殊符号）进行数字的编码
-    local data = torch.ByteTensor(tot_len) -- store it into 1D first, then rearrange
+    --把原始的文本中的字符（包括数字和特殊符号）进行数字的编码,如果输入是英文，字符数量较少，因此用ByteTensor就可以，如果是汉字，就不能用ByteTensor
+    local data = torch.FloatTensor(tot_len) -- store it into 1D first, then rearrange
     f = assert(io.open(in_textfile, "r"))
     local currlen = 0
     rawdata = f:read(cache_len)
     --repeat
     a,b=str2table(rawdata)
-    --print(a)
+    --print(a[224227])
+    --print(vocab_mapping[a[224227]])
     --print(b)
     --assert(false)
-    for i=1, #a do
-        if vocab_mapping[a[i]]==57 then
-            print(a[i-15])
-            print(a[i-14])
-            print(a[i-13])
-            print(a[i-12])
-            print(a[i-10])
-            print(a[i-9])
-            print(a[i-8])
-            print(a[i-7])
-            print(a[i-6])
-            print(a[i-5])
-            print(a[i-4])
-            print(a[i-3])
-            print(a[i-2])
-            print(a[i-1])
-            print(a[i])
-            print(a[i+1])
-            print(a[i+2])
-            print(a[i+3])
-            print(a[i+4])
-            print(i)
-            assert(false)
-        end
+    for i=1, #a do  
+        --print(i)      
         data[currlen+i] = vocab_mapping[a[i]] -- lua has no string indexing using []
+        --print(data[currlen+i])
+        --print(vocab_mapping[a[i]])
     end
-    assert(false)
+    --print(data)
+    --print(vocab_mapping)
+    --assert(false)
     currlen = currlen + #a
         --rawdata = f:read(cache_len)
     --until not rawdata
@@ -234,6 +219,7 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     torch.save(out_vocabfile, vocab_mapping)
     print('saving ' .. out_tensorfile)
     torch.save(out_tensorfile, data)
+    --assert(false)
 end
 
 return CharSplitLMMinibatchLoader
