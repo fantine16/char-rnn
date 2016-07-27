@@ -28,7 +28,7 @@ cmd:argument('-model','model checkpoint to use for sampling')
 cmd:option('-seed',123,'random number generator\'s seed')
 cmd:option('-sample',1,' 0 to use max at each timestep, 1 to sample at each timestep')
 cmd:option('-primetext',"",'used as a prompt to "seed" the state of the LSTM using a given sequence, before we sample.')
-cmd:option('-length',2000,'number of characters to sample')
+cmd:option('-length',3000,'number of characters to sample')
 cmd:option('-temperature',1,'temperature of sampling')
 cmd:option('-gpuid',0,'which gpu to use. -1 = use CPU')
 cmd:option('-opencl',0,'use OpenCL (instead of CUDA)')
@@ -109,12 +109,14 @@ end
 state_size = #current_state
 
 -- do a few seeded timesteps
+--给定的句子
 local seed_text = opt.primetext
 if string.len(seed_text) > 0 then
     gprint('seeding with ' .. seed_text)
     gprint('--------------------------')
     for c in seed_text:gmatch'.' do
         prev_char = torch.Tensor{vocab[c]}
+        --print(ivocab[prev_char[1]])
         io.write(ivocab[prev_char[1]])
         if opt.gpuid >= 0 and opt.opencl == 0 then prev_char = prev_char:cuda() end
         if opt.gpuid >= 0 and opt.opencl == 1 then prev_char = prev_char:cl() end
@@ -156,6 +158,7 @@ for i=1, opt.length do
     prediction = lst[#lst] -- last element holds the log probabilities
 
     io.write(ivocab[prev_char[1]])
+    11print(ivocab[prev_char[1]])
 end
 io.write('\n') io.flush()
 

@@ -32,6 +32,8 @@ function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, spl
             run_prepro = true
         end
     end
+    --!!!!!!
+    run_prepro=true
     if run_prepro then
         -- construct a tensor with all the data, and vocab file
         print('one-time setup: preprocessing input text file ' .. input_file .. '...')
@@ -61,7 +63,7 @@ function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, spl
     self.batch_size = batch_size
     self.seq_length = seq_length
 
-    local ydata = data:clone()
+    local ydata = data:clone() -- ????
     ydata:sub(1,-2):copy(data:sub(2,-1))
     ydata[-1] = data[1]
     self.x_batches = data:view(batch_size, -1):split(seq_length, 2)  -- #rows = #batches
@@ -136,26 +138,48 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     print('creating vocabulary mapping...')
     -- record all characters to a set
     local unordered = {}
+    --Rawdata是string类型,长度是cache_len
     rawdata = f:read(cache_len)
+    --print(rawdata:gmatch'.')
+    print(torch.type(rawdata))
+    print((rawdata))
+    --assert(false)
+    --得到Input.txt中的所有的字符（包括数字，字母和标点，空字符等）的集合,存到unordered里
     repeat
         for char in rawdata:gmatch'.' do
+            --print(char)
             if not unordered[char] then unordered[char] = true end
         end
         tot_len = tot_len + #rawdata
+        --print(tot_len)
+        --assert(false)        
         rawdata = f:read(cache_len)
+        --print('gogo')
     until not rawdata
+    --print(unordered)
+    --assert(false)
     f:close()
     -- sort into a table (i.e. keys become 1..N)
     local ordered = {}
     for char in pairs(unordered) do ordered[#ordered + 1] = char end
+    --按照ascii表有序的字符集合
     table.sort(ordered)
+    print(ordered)
+    assert(false)
     -- invert `ordered` to create the char->int mapping
+    --建立字符到数字编码的对应关系
     local vocab_mapping = {}
     for i, char in ipairs(ordered) do
         vocab_mapping[char] = i
     end
+    --print(vocab_mapping)
+    --assert(false)
     -- construct a tensor with all the data
     print('putting data into tensor...')
+    --共1115394个字符
+    print(tot_len)
+    --assert(false)
+    --把原始的文本中的字符（包括数字和特殊符号）进行数字的编码
     local data = torch.ByteTensor(tot_len) -- store it into 1D first, then rearrange
     f = assert(io.open(in_textfile, "r"))
     local currlen = 0
