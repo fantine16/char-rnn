@@ -203,6 +203,12 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     for i=1, #a do  
         --print(i)      
         data[currlen+i] = vocab_mapping[a[i]] -- lua has no string indexing using []
+        --if vocab_mapping[a[i]]==90 then
+         --   for j=-60,5 do
+         --       print(a[i+j])
+          --  end
+          --  break
+        --end
         --print(data[currlen+i])
         --print(vocab_mapping[a[i]])
     end
